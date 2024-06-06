@@ -99,7 +99,7 @@ def rabin_karp_match(text, patterns):
     n = len(text)
     m = len(patterns[0])
     p = 4999
-    q = 10007
+    q = 1000000007
     results = {pattern: [] for pattern in patterns}
 
     pattern_hashes = {pattern: 0 for pattern in patterns}
