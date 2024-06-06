@@ -18,3 +18,4 @@ All algorithms are tested on the folowing tasks from _informatics.msk.ru_
 5. https://informatics.msk.ru/mod/statements/view.php?chapterid=111732
 
 Screenshots in the _informatics tests_ folder
+
