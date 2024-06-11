@@ -2,6 +2,7 @@ import time
 import random
 import matplotlib.pyplot as plt
 import sys
+
 sys.setrecursionlimit(100000)
 unicode_chars = ''.join(chr(i) for i in range(0x10FFFF + 1) if chr(i).isprintable() and not chr(i) == '#')
 
@@ -102,16 +103,21 @@ def rabin_karp_match(text, patterns):
     q = 1000000007
     results = {pattern: [] for pattern in patterns}
 
+    p_powers = [1] * m
+    for i in range(1, m):
+        p_powers[i] = (p_powers[i - 1] * p) % q
+
     pattern_hashes = {pattern: 0 for pattern in patterns}
     for pattern in patterns:
         hash_pattern = 0
         for i in range(m):
-            hash_pattern += ord(pattern[i]) * (p ** (m - 1 - i))
-        pattern_hashes[pattern] = hash_pattern % q
+            hash_pattern = (hash_pattern + ord(pattern[i]) * p_powers[m - 1 - i]) % q
+        pattern_hashes[pattern] = hash_pattern
+
     hash_text = 0
     for i in range(m):
-        hash_text += ord(text[i]) * (p ** (m - 1 - i))
-    hash_text %= q
+        hash_text = (hash_text + ord(text[i]) * p_powers[m - 1 - i]) % q
+
     for i in range(n - m + 1):
         if hash_text in pattern_hashes.values():
             pattern = list(pattern_hashes.keys())[list(pattern_hashes.values()).index(hash_text)]
@@ -120,8 +126,12 @@ def rabin_karp_match(text, patterns):
                     break
             if j == m - 1:
                 results[pattern].append(i)
+
         if i < n - m:
-            hash_text = ((hash_text - ord(text[i]) * (p ** (m - 1))) * p + ord(text[i + m])) % q
+            hash_text = (hash_text - ord(text[i]) * p_powers[m - 1]) % q
+            hash_text = (hash_text * p) % q
+            hash_text = (hash_text + ord(text[i + m])) % q
+
     return results
 
 
@@ -308,6 +318,8 @@ def generate_random_string(length_text, length_pattern, num_alphabet, count_patt
         ind1 = random.randint(0, length_text - length_pattern)
         ind2 = ind1 + length_pattern
         patterns.append(text[ind1:ind2])
+        if not text[ind1:ind2] in patterns:
+            patterns.append(text[ind1:ind2])
     return text, patterns
 
 
@@ -409,8 +421,9 @@ def plot_graphs(results, params):
 
 
 def main():
-    params = [[i, j, k] for i in range(10, 1000, 150) for j in [int(0.1 * i), int(0.5 * i), int(0.9 * i)] for k in [10, 100, 1000]]
-    results = test_with_random_string(params, 50, 0)
+    params = [[i, j, k] for i in range(100, 1001, 150) for j in [int(0.1 * i), int(0.5 * i), int(0.9 * i)] for k in
+              [10, 100, 1000]]
+    results = test_with_random_string(params, 200, 0)
     plot_graphs(results, params)
 
 
